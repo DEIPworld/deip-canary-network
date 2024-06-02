@@ -1,0 +1,27 @@
+version: "3.3"
+
+services:
+  node1:
+    image: "$LOCAL_REPO/$BLOCKCHAIN_NODE_IMG"
+    labels:
+      - "bootnode=true"
+      - "role=nominator"
+    command: |
+      $BLOCKCHAIN_NODE_BIN 
+        --validator 
+        --chain=dev
+        --base-path=/var/lib/deipd
+        --ws-external --rpc-external --rpc-methods=Unsafe 
+        --offchain-worker=WhenValidating 
+        --enable-offchain-indexing=true
+        -lpallet_deip_proposal=debug 
+        -lpallet_deip_dao=debug 
+        -l=txpool=trace,runtime=trace,offchain=trace
+    volumes:
+      - node1:/var/lib/deipd
+    ports:
+      - "9944:9944"
+      - "9933:9933"
+
+volumes:
+  node1:

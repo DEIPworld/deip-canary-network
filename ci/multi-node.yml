@@ -1,0 +1,132 @@
+version: "3.3"
+
+services:
+  node1:
+    profiles: ["node"]
+    image: "$LOCAL_REPO/$BLOCKCHAIN_NODE_IMG"
+    labels:
+      - "bootnode=true"
+      - "role=nominator"
+    command: |
+      $BLOCKCHAIN_NODE_BIN 
+        --name Node01
+        $COMMON_NODE_PARAMS
+    volumes:
+      - node1:/var/lib/deipd
+      - "./devSpecRaw.json:/spec.json" 
+    networks:
+      blockchain:
+        ipv4_address: 172.36.10.1
+      default:
+        aliases:
+          - "deip-blockchain-node"
+    ports:
+      - "9944:9944"
+      - "9933:9933"
+  
+  node2:
+    profiles: ["node"]
+    image: "$LOCAL_REPO/$BLOCKCHAIN_NODE_IMG"
+    labels:
+      - "role=nominator"
+    command: |
+      $BLOCKCHAIN_NODE_BIN
+        --name Node02
+        --bootnodes=/ip4/172.36.10.1/tcp/30333/p2p/12D3KooWDB4M6qyuyx5Brhcz1DKbHxr3GCaHowWEcB6SEY5UShvr
+        $COMMON_NODE_PARAMS
+    volumes:
+      - node2:/var/lib/deipd
+      - "./devSpecRaw.json:/spec.json"
+    networks:
+      blockchain:
+        ipv4_address: 172.36.10.2
+  
+  node3:
+    profiles: ["node"]
+    image: "$LOCAL_REPO/$BLOCKCHAIN_NODE_IMG"
+    labels:
+      - "role=validator"
+    command: |
+      $BLOCKCHAIN_NODE_BIN
+        --name Node03
+        --bootnodes=/ip4/172.36.10.1/tcp/30333/p2p/12D3KooWDB4M6qyuyx5Brhcz1DKbHxr3GCaHowWEcB6SEY5UShvr
+        $COMMON_NODE_PARAMS
+    volumes:
+      - node3:/var/lib/deipd
+      - "./devSpecRaw.json:/spec.json"
+    networks:
+      blockchain:
+        ipv4_address: 172.36.10.3
+  
+  node4:
+    profiles: ["node"]
+    image: "$LOCAL_REPO/$BLOCKCHAIN_NODE_IMG"
+    labels:
+      - "role=validator"
+    command: |
+      $BLOCKCHAIN_NODE_BIN
+        --dave
+        --name Node04
+        --validator
+        --bootnodes=/ip4/172.36.10.1/tcp/30333/p2p/12D3KooWDB4M6qyuyx5Brhcz1DKbHxr3GCaHowWEcB6SEY5UShvr
+        $COMMON_NODE_PARAMS
+    volumes:
+      - node4:/var/lib/deipd
+      - "./devSpecRaw.json:/spec.json"
+    networks:
+      blockchain:
+        ipv4_address: 172.36.10.4
+  
+  node5:
+    profiles: ["node"]
+    image: "$LOCAL_REPO/$BLOCKCHAIN_NODE_IMG"
+    labels:
+      - "role=validator"
+    command: |
+      $BLOCKCHAIN_NODE_BIN
+        --eve
+        --name Node05
+        --validator
+        --bootnodes=/ip4/172.36.10.1/tcp/30333/p2p/12D3KooWDB4M6qyuyx5Brhcz1DKbHxr3GCaHowWEcB6SEY5UShvr
+        $COMMON_NODE_PARAMS
+    volumes:
+      - node5:/var/lib/deipd
+      - "./devSpecRaw.json:/spec.json"
+    networks:
+      blockchain:
+        ipv4_address: 172.36.10.5
+  
+  node6:
+    profiles: ["node"]
+    image: "$LOCAL_REPO/$BLOCKCHAIN_NODE_IMG"
+    labels:
+      - "role=validator"
+    command: |
+      $BLOCKCHAIN_NODE_BIN
+        --ferdie
+        --name Node06
+        --validator
+        --bootnodes=/ip4/172.36.10.1/tcp/30333/p2p/12D3KooWDB4M6qyuyx5Brhcz1DKbHxr3GCaHowWEcB6SEY5UShvr
+        $COMMON_NODE_PARAMS
+    volumes:
+      - node6:/var/lib/deipd
+      - "./devSpecRaw.json:/spec.json"
+    networks:
+      blockchain:
+        ipv4_address: 172.36.10.6
+
+volumes:
+  node1:
+  node2:
+  node3:
+  node4:
+  node5:
+  node6:
+
+networks:
+  blockchain:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.36.0.0/16

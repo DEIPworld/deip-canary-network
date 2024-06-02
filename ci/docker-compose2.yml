@@ -1,0 +1,52 @@
+version: "3.3"
+
+services:
+  zookeeper:
+    profiles:
+      - kafka
+    image: bitnami/zookeeper:3.7
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  kafka:
+    profiles:
+      - kafka
+    image: bitnami/kafka:2
+    ports:
+      - "9092:9092"
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+  deip-event-proxy:
+    profiles:
+      - "event-proxy"
+    image: "$LOCAL_REPO/$EVENT_PROXY_IMG"
+    command: $EVENT_PROXY_BIN --config=/event-proxy.toml
+    environment:
+      RUST_LOG: "error,librdkafka=error,rdkafka::client=error"
+    volumes:
+      - "./event-proxy.toml:/event-proxy.toml"
+    depends_on:
+      - kafka
+  deip-event-proxy-client:
+    profiles:
+      - "event-proxy"
+    image: "$LOCAL_REPO/$EVENT_PROXY_CLIENT_IMG"
+    command: $EVENT_PROXY_CLIENT_BIN
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+    depends_on:
+      - kafka
+
+volumes:
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local

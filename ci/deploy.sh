@@ -36,4 +36,18 @@ export APP_IMAGE="$BINARY_NAME:$REVISION"
 echo "EVENT_PROXY_CLIENT_IMG=$APP_IMAGE" >> .env
 echo "EVENT_PROXY_CLIENT_BIN=$BINARY_NAME" >> .env
 
+echo "COMMON_NODE_PARAMS=\
+--chain=/spec.json \
+--base-path=/var/lib/deipd \
+--node-key-file=/var/lib/deipd/node-key-file \
+--ws-external --rpc-external --rpc-methods=Unsafe \
+--offchain-worker=WhenValidating --enable-offchain-indexing=true \
+-lpallet_deip_proposal=debug,pallet_deip_dao=debug,pallet_deip_portal=debug \
+-l=txpool=trace,runtime=trace,offchain=trace" >> .env
+
 docker-compose up -d --no-build
+
+
+# appchain-deip build-spec --chain=/spec/devSpec.json --raw --disable-default-bootnode > /spec/devSpecRaw.json
+# docker run --init --rm -ti -v $(pwd):/spec appchain-deip:478b54a bash
+# appchain-deip purge-chain --base-path=/var/lib/deipd --chain=dev -y
